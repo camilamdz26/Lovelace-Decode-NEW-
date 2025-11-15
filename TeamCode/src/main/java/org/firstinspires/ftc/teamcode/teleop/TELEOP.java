@@ -1,0 +1,53 @@
+package org.firstinspires.ftc.teamcode.teleop;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.util.Range;
+
+@TeleOp
+        (name="TELEOP")
+
+public class TELEOP extends LinearOpMode {
+    DcMotor BR;
+    DcMotor BL;
+    DcMotor FL;
+    DcMotor FR;
+    double r;
+
+    public void runOpMode(){
+        BR = hardwareMap.get(DcMotor.class, "BR");
+        BL = hardwareMap.get(DcMotor.class, "BL");
+        FL=hardwareMap.get(DcMotor.class, "FL");
+        FR=hardwareMap.get(DcMotor.class, "FR");
+
+        BR.setDirection(DcMotorSimple.Direction.REVERSE);
+        FR.setDirection(DcMotorSimple.Direction.REVERSE);
+
+        waitForStart();
+        while (opModeIsActive()){
+            r = Math.hypot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
+            double robotAngle = Math.atan2(gamepad1.left_stick_x, -gamepad1.left_stick_y) - Math.PI / 4;
+            double rightX = gamepad1.right_stick_x;
+            final double v4 = r * Math.cos(robotAngle) - rightX;
+            final double v3 = r * Math.sin(robotAngle) - rightX; //might have to change based on which ones
+            final double v2 = r * Math.sin(robotAngle) + rightX; //were forward/backward last year, which was fr
+            final double v1 = r * Math.cos(robotAngle) + rightX;
+
+            BR.setPower(Range.clip(-v4, -1.0D, 1.0D));
+            BL.setPower(Range.clip(-v3, -1.0D, 1.0D));
+            FR.setPower(Range.clip(-v2, -1.0D, 1.0D));
+            FL.setPower(Range.clip(-v1, -1.0D, 1.0D));
+            telemetry.update();
+
+        }
+        //everything else in if statements here
+        /*
+        1. intake (on?)
+        (off?)
+        2. outtake
+        (on)
+         */
+    }
+}
