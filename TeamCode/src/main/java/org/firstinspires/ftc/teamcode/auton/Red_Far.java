@@ -24,6 +24,7 @@ public class Red_Far extends LinearOpMode {
         //create starting pos
         Pose2d beginPose = new Pose2d(-58,45,Math.toRadians(305));
         Pose2d camPose = new Pose2d(0,10,Math.toRadians(180));
+        Pose2d prePose = new Pose2d(-34, 30, Math.toRadians(180));
 
         //create rr drive obj
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
@@ -32,7 +33,7 @@ public class Red_Far extends LinearOpMode {
         Action toCam = drive.actionBuilder(beginPose)
                 .splineTo(new Vector2d(0, 10), Math.toRadians(180))
                 .build();
-        Action GPP = drive.actionBuilder(camPose) //closest
+        Action GPP = drive.actionBuilder(prePose) //closest
                 .lineToX(35)
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
@@ -54,7 +55,7 @@ public class Red_Far extends LinearOpMode {
                 .turn(Math.toRadians(-45))
                 //launch
                 .build();
-        Action PPG = drive.actionBuilder(camPose) //farthest
+        Action PPG = drive.actionBuilder(prePose) //farthest
                 .lineToX(-12)
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
@@ -76,7 +77,7 @@ public class Red_Far extends LinearOpMode {
                 .turn(Math.toRadians(-45))
                 //launch
                 .build();
-        Action PGP = drive.actionBuilder(camPose)
+        Action PGP = drive.actionBuilder(prePose)
                 .lineToX(12)
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
@@ -97,6 +98,13 @@ public class Red_Far extends LinearOpMode {
                 .lineToX(-34)
                 .turn(Math.toRadians(-45))
                 //launch
+                .build();
+        Action preload = drive.actionBuilder(camPose)
+                .splineTo(new Vector2d(-34, 35), Math.toRadians(135))
+                //LAUNCH
+                .lineToY(30)
+                .turn(Math.toRadians(45))
+
                 .build();
 
          //this calls the function called vid, whcih initializes the camera
@@ -117,6 +125,7 @@ public class Red_Far extends LinearOpMode {
         String APRT = tag_ID(); //assign string aprt to the tag id that you sense
 
         cam.stopCamera();
+        Actions.runBlocking(new SequentialAction(preload));
         if (Objects.equals(APRT, "GPP")) {
             Actions.runBlocking(new SequentialAction(GPP));
         } else if (Objects.equals(APRT, "PPG")) {
