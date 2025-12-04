@@ -235,6 +235,7 @@ public class Red_Far extends LinearOpMode {
 
         cam.stopCamera();
         Actions.runBlocking(new SequentialAction(preload));
+
         if (Objects.equals(APRT, "GPP")) {
             Actions.runBlocking(new SequentialAction(GPP));
         } else if (Objects.equals(APRT, "PPG")) {
