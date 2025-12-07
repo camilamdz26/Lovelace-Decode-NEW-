@@ -1,4 +1,7 @@
 package org.firstinspires.ftc.teamcode.movement;
+import static java.lang.Math.tan;
+
+import com.acmerobotics.roadrunner.Pose2d;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.LLStatus;
@@ -17,6 +20,9 @@ import java.util.List;
 public class MOV_cam2 {
     private static VisionPortal myVisionPortal;
     private static AprilTagProcessor myAprilTagProcessor;
+    double cameraHeight = 0;   // inches
+    double targetHeight  = 0;  // inches
+    double cameraAngle   = 0;
 
     public static void video(HardwareMap hardwareMap, Limelight3A LL, Telemetry telemetry){
         telemetry.setMsTransmissionInterval(11);
@@ -86,6 +92,9 @@ public class MOV_cam2 {
         return APRT;
     }
 
+    public static void launch_velocity (Limelight3A LL){
+
+    }
     public void stopCamera(Limelight3A LL) {
         LL.stop();
     }

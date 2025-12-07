@@ -54,6 +54,17 @@ public class new_red_far extends LinearOpMode {
         }
     }
 
+    class OUTTAKE implements InstantFunction {
+        @Override
+        public void run(){
+            outake.setPower(1);
+            transfer.setPower(1);
+            sleep(3000);
+            outake.setPower(0);
+            transfer.setPower(0);
+        }
+    }
+
     @Override
     public void runOpMode() throws InterruptedException{
         Limelight3A LL = hardwareMap.get(Limelight3A.class, "LL");
