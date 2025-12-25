@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 @Autonomous
-public class new_red_far extends LinearOpMode {
+public class red_goal extends LinearOpMode {
     CRServo intake;
     CRServo transfer;
     DcMotor outake;
@@ -70,13 +70,28 @@ public class new_red_far extends LinearOpMode {
         Limelight3A LL = hardwareMap.get(Limelight3A.class, "LL");
 
         //create starting pos
-        Pose2d beginPose = new Pose2d(-58,45,Math.toRadians(305));
+        Pose2d beginPose = new Pose2d(-62,36,Math.toRadians(0));
         Pose2d preloadpose = new Pose2d(-16,-15,Math.toRadians(180));
         //this might be wrong...
 
         //create rr drive obj
         MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
 
+        Action basic2 = drive.actionBuilder(beginPose)
+                .lineToX(-35)
+                        .turnTo(Math.toRadians(135))
+                //outtake
+                .turnTo(Math.toRadians(90))
+                .lineToX(-16)
+                .lineToY(40)
+                //intake on
+                .lineToY(45)
+                //intake off
+                .lineToY(15)
+                .turnTo(Math.toRadians(135))
+                //launch
+                .build();
+/*
         Action basic = drive.actionBuilder(beginPose)
                 .strafeTo(new Vector2d(-16, 15))
                 .turnTo(Math.toRadians(135))
@@ -179,10 +194,10 @@ public class new_red_far extends LinearOpMode {
                 //then, in teleop, aim for balls gp
                 .build();
 
-
+*/
         waitForStart();
         //OPTION 1
-        Actions.runBlocking(new SequentialAction(basic));
+        Actions.runBlocking(new SequentialAction(basic2));
 
 
         //OPTION 2

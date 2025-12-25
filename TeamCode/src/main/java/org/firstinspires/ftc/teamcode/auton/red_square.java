@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.auton;
 import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantFunction;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
 import com.acmerobotics.roadrunner.Vector2d;
@@ -7,17 +8,68 @@ import com.acmerobotics.roadrunner.ftc.Actions;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.roadrunner.MecanumDrive;
 
 @Autonomous
-public class new_red_close extends LinearOpMode {
+public class red_square extends LinearOpMode {
+    CRServo intake;
+    CRServo transfer;
+    DcMotor outake;
+    class OT implements InstantFunction {
+        //OS stands for outake speed. It is the variable for the speed we want to set the outake at.
+        //We use it in the class so we can adjust the speed in the actual path, rather than makng a seperate code for every speed we need.
+        float OS;
+        public OT(float OS){
+            this.OS = OS;
+        }
+        @Override
+        public void run(){
+            outake.setPower(OS);
+        }
+    }
+
+    class GATE implements InstantFunction{
+        float TS;
+        public GATE(float TS){
+            this.TS = TS;
+        }
+        @Override
+        public void run(){
+            transfer.setPower(TS);
+        }
+    }
+
+
+    class IT implements InstantFunction {
+        float IS;
+        public IT(float IS){
+            this.IS = IS;
+        }
+        @Override
+        public void run(){
+            intake.setPower(IS);
+        }
+    }
+
+    class OUTTAKE implements InstantFunction {
+        @Override
+        public void run(){
+            outake.setPower(1);
+            transfer.setPower(1);
+            sleep(3000);
+            outake.setPower(0);
+            transfer.setPower(0);
+        }
+    }
     @Override
     public void runOpMode() throws InterruptedException{
         Limelight3A LL = hardwareMap.get(Limelight3A.class, "LL");
 
         //create starting pos
-        Pose2d beginPose = new Pose2d(60,35,Math.toRadians(180));
+        Pose2d beginPose = new Pose2d(60,10,Math.toRadians(180));
         Pose2d preloadpose = new Pose2d(-16,-15,Math.toRadians(180));
         //this might be wrong...
 
@@ -27,22 +79,57 @@ public class new_red_close extends LinearOpMode {
         Action basic = drive.actionBuilder(beginPose)
                 .strafeTo(new Vector2d(-16, 15))
                 .turnTo(Math.toRadians(135))
-                //outake
+                //launch
+                .turnTo(Math.toRadians(90))
+                .lineToX(-16)
+                .lineToY(40)
+                //intake on
+                .lineToY(45)
+                //intake off
+                .lineToY(15)
+                .turnTo(Math.toRadians(135))
+                //launch
+                .build();
+/*
+        Action basic = drive.actionBuilder(beginPose)
+                .strafeTo(new Vector2d(-16, 15))
+                .turnTo(Math.toRadians(135))
+
+                //launch
+                .stopAndAdd(new OT(1))
+                .stopAndAdd(new GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new OT(0))
+                .stopAndAdd(new GATE(0))
+                //
+
                 .turnTo(Math.toRadians(180))
-                .strafeTo(new Vector2d(-12, 30))
+                .lineToY(42)
+
                 //intake motor on
+
                 .turnTo(Math.toRadians(90))
                 .lineToY(42)
                 //intake off
                 .strafeTo(new Vector2d(-16, 15))
                 .turnTo(Math.toRadians(135))
-                //outake
+                //outtake
+                .stopAndAdd(new  OT(1))
+                .stopAndAdd(new  GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new  OT(0))
+                .stopAndAdd(new  GATE(0))
                 .build();
 
         Action preloaded = drive.actionBuilder(beginPose)
                 .strafeTo(new Vector2d(-16, 15))
                 .turnTo(Math.toRadians(135))
-                //outake
+                //outtake
+                .stopAndAdd(new  OT(1))
+                .stopAndAdd(new  GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new  OT(0))
+                .stopAndAdd(new  GATE(0))
                 .turnTo(Math.toRadians(180))
                 .build();
 
@@ -52,11 +139,24 @@ public class new_red_close extends LinearOpMode {
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
                 //intake
+                .stopAndAdd(new  IT(1))
+                //.sleep(1000)
+                .stopAndAdd(new  IT(0))
+                //
+                .stopAndAdd(new IT(1))
+                //.sleep(1000)
+                .stopAndAdd(new IT(0))
+                //
                 .lineToY(15)
                 .turn(Math.toRadians(90))
                 .lineToX(-16)
                 .turnTo(Math.toRadians(135))
                 //outtake
+                .stopAndAdd(new  OT(1))
+                .stopAndAdd(new  GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new  OT(0))
+                .stopAndAdd(new  GATE(0))
                 .build();
         //GRAB FROM 2ND
         //intake
@@ -68,11 +168,21 @@ public class new_red_close extends LinearOpMode {
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
                 //intake
+                .stopAndAdd(new  IT(1))
+                //.sleep(1000)
+                .stopAndAdd(new  IT(0))
+                //
                 .lineToY(15)
                 .turn(Math.toRadians(90))
                 .lineToX(-16)
                 .turnTo(Math.toRadians(135))
-                //outtake
+                //launch
+                .stopAndAdd(new  OT(1))
+                .stopAndAdd(new  GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new  OT(0))
+                .stopAndAdd(new  GATE(0))
+                //
                 //then, in teleop, aim for balls pg
                 .build();
 
@@ -81,18 +191,28 @@ public class new_red_close extends LinearOpMode {
                 .turn(Math.toRadians(-90))
                 .lineToY(42)
                 //intake
+                .stopAndAdd(new  IT(1))
+                //.sleep(1000)
+                .stopAndAdd(new  IT(0))
+                //
                 .lineToY(15)
                 .turn(Math.toRadians(90))
                 .lineToX(-16)
                 .turnTo(Math.toRadians(135))
-                //outtake
+                //launch
+                .stopAndAdd(new  OT(1))
+                .stopAndAdd(new  GATE(1))
+                //.sleep(2000)
+                .stopAndAdd(new  OT(0))
+                .stopAndAdd(new  GATE(0))
+                //
                 //assume preloaded balls score pg, so we pick up and score pp
                 //intake
                 //GRAB FROM FARTHEST
                 //then, in teleop, aim for balls gp
                 .build();
 
-
+*/
         waitForStart();
         //OPTION 1
         Actions.runBlocking(new SequentialAction(basic));

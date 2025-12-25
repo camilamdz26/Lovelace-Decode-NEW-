@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.auton;
 
-import static org.firstinspires.ftc.teamcode.movement.MOV_cam.tag_ID;
 import static org.firstinspires.ftc.teamcode.movement.movement.backward;
 import static org.firstinspires.ftc.teamcode.movement.movement.forward;
 import static org.firstinspires.ftc.teamcode.movement.movement.left;
@@ -19,7 +18,7 @@ import org.firstinspires.ftc.teamcode.movement.MOV_cam;
 import java.util.Objects;
 
 @Autonomous
-public class red_close_mov extends LinearOpMode {
+public class blue_far_mov extends LinearOpMode {
 
     DcMotor FR;
     DcMotor FL;
@@ -53,10 +52,11 @@ public class red_close_mov extends LinearOpMode {
         waitForStart();
 
         while (opModeIsActive()) {
-            forward(84, telemetry, BL, BR, FL, FR); //forward to middle of field
+            forward(60, telemetry, BL, BR, FL, FR); //forward to middle of field
             left(24, telemetry, BL, BR, FL, FR);
-            rotateRight(45,telemetry, BL, BR, FL, FR);
-            //outake
+            rotateRight(135,telemetry, BL, BR, FL, FR);
+            //outtake
+
             outake.setPower(1);
             outake2.setPower(1);
             transferL.setPower(1);
@@ -69,7 +69,7 @@ public class red_close_mov extends LinearOpMode {
             outake.setPower(1);
             outake2.setPower(1);
             //
-            rotateRight(45,telemetry, BL, BR, FL, FR);
+            rotateLeft(45,telemetry, BL, BR, FL, FR);
             forward(36,telemetry, BL, BR, FL, FR);
             //intake
             intake.setPower(1);
@@ -77,7 +77,7 @@ public class red_close_mov extends LinearOpMode {
             intake.setPower(0);
             //
             backward(36, telemetry, BL, BR, FL, FR);
-            rotateLeft(45, telemetry, BL, BR, FL, FR);
+            rotateRight(45, telemetry, BL, BR, FL, FR);
             //outtake
             outake.setPower(1);
             outake2.setPower(1);

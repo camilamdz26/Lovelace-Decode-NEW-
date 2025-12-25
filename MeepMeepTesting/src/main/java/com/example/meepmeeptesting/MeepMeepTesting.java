@@ -18,19 +18,26 @@ public class MeepMeepTesting {
                 .setConstraints(60, 60, Math.toRadians(190), Math.toRadians(190), 15)
                 .build();
 
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(-58,45,Math.toRadians(305)))
-                .strafeTo(new Vector2d(-16, 15))
-                .turnTo(Math.toRadians(135))
-                //outake
-                .turnTo(Math.toRadians(180))
-                .strafeTo(new Vector2d(-12, 30))
-                //intake motor on
-                .turnTo(Math.toRadians(90))
-                .lineToY(42)
-                //intake off
-                .strafeTo(new Vector2d(-16, 15))
-                .turnTo(Math.toRadians(135))
-                //outake
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(60,-10,Math.toRadians(180)))
+                .lineToX(35)
+                .turn(Math.toRadians(90))
+                .lineToY(-42)
+                //intake
+                .lineToY(-35)
+                .turn(Math.toRadians(-90))
+                .lineToX(-34)
+                .turn(Math.toRadians(45))
+                //launch
+                .turn(Math.toRadians(-45))
+                .lineToX(-12)
+                .turn(Math.toRadians(90))
+                .lineToY(-42)
+                //intake
+                .turn(Math.toRadians(-360)) //placehodler for intake
+                .lineToY(-35)
+                .turn(Math.toRadians(-90))
+                .lineToX(-34)
+                .turn(Math.toRadians(45))
                 .build());
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_OFFICIAL)

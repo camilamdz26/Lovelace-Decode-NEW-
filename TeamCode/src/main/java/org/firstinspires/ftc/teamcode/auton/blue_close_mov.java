@@ -1,10 +1,5 @@
 package org.firstinspires.ftc.teamcode.auton;
 
-import static org.firstinspires.ftc.teamcode.hardware.movement.backward;
-import static org.firstinspires.ftc.teamcode.hardware.movement.forward;
-import static org.firstinspires.ftc.teamcode.hardware.movement.rotateLeft;
-import static org.firstinspires.ftc.teamcode.hardware.movement.rotateRight;
-import static org.firstinspires.ftc.teamcode.movement.MOV_cam.tag_ID;
 import static org.firstinspires.ftc.teamcode.movement.movement.backward;
 import static org.firstinspires.ftc.teamcode.movement.movement.forward;
 import static org.firstinspires.ftc.teamcode.movement.movement.right;
@@ -95,4 +90,3 @@ public class blue_close_mov extends LinearOpMode {
             }
         }
     }
-}
