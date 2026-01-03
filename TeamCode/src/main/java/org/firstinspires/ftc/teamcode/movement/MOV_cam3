@@ -1,4 +1,4 @@
-//limelight detection to use in teleop
+//limelight detection to use in teleop TO FIND DISTANCE TO THE APRIL TAG BUT IDK IF IT WOULD WORK
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -8,8 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.LLResultTypes;
-import com.qualcomm.hardware.limelightvision.LLStatus;
-import com.qualcomm.hardware.limelightvision.Limelight3
+import com.qualcomm.hardware.limelightvision.Limelight3A;
+import java.util.List;
+
 
 @TeleOp
         (name="TELEOP")
@@ -35,10 +36,10 @@ Limelight3A LL;
         telemetry.setMsTransmissionInterval(11);
 
         LL.pipelineSwitch(0);
-
         waitForStart();
+LL.start();
         while (opModeIsActive()){
-        LL.start();
+        
             r = Math.hypot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
             double robotAngle = Math.atan2(gamepad1.left_stick_x, -gamepad1.left_stick_y) - Math.PI / 4;
             double rightX = gamepad1.right_stick_x;
@@ -51,28 +52,17 @@ Limelight3A LL;
             BL.setPower(Range.clip(-v3, -1.0D, 1.0D));
             FR.setPower(Range.clip(-v2, -1.0D, 1.0D));
             FL.setPower(Range.clip(-v1, -1.0D, 1.0D));
-            telemetry.update();
 
-LL.result result = LL.getLatestResult();
-
-List<FiducialResult> fiducials = result.getFiducialResults();
-for (FiducialResult fiducial : fiducials) {
-    int id = fiducial.getFiducialId(); // The ID number of the fiducial
-    double x = detection.getTargetXDegrees(); // Where it is (left-right)
-    double y = detection.getTargetYDegrees(); // Where it is (up-down)
-    double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getY(); 
-    telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
-        fiducial.getRobotPoseTargetSpace();
-}
-
-if (result != null && result.isValid()) {
-    Pose3D botpose = result.getBotpose();
-    if (botpose != null) {
-        double x = botpose.getPosition().x;
-        double y = botpose.getPosition().y;
-        telemetry.addData("MT1 Location", "(" + x + ", " + y + ")");
+ LLResult result = LL.getLatestResult();
+    if (result != null && result.isValid()) {
+        List<LLResultTypes.AprilTagResult> tags = result.getAprilTagResults();
+        if (!tags.isEmpty()) {
+            double dist = tags.get(0).getPose().getZ();
+            telemetry.addData("Distance (m)", dist);
+        }
     }
-}
+
+    telemetry.update();
 
        }
     }
