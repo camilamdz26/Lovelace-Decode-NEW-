@@ -6,5 +6,7 @@ public void runOpMode() throws InterruptedException {
   LL = hardwareMap.get(Limelight3A.class, "LL");
   telemetry.setMsTransmissionInterval(11);
   limelight.pipelineSwitch(0);
+
+  LL.start()
 }
 }
