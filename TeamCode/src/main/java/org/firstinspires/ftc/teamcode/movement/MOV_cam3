@@ -1,0 +1,10 @@
+public class MOV_cam3 extends LinearOpMode {
+  private Limelight3A LL;
+
+  @Override
+public void runOpMode() throws InterruptedException {
+  LL = hardwareMap.get(Limelight3A.class, "LL");
+  telemetry.setMsTransmissionInterval(11);
+  limelight.pipelineSwitch(0);
+}
+}
