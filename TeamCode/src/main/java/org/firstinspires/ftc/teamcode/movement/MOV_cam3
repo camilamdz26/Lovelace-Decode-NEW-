@@ -1,12 +1,105 @@
-public class MOV_cam3 extends LinearOpMode {
-  private Limelight3A LL;
+package org.firstinspires.ftc.teamcode.auton;
 
-  @Override
-public void runOpMode() throws InterruptedException {
-  LL = hardwareMap.get(Limelight3A.class, "LL");
-  telemetry.setMsTransmissionInterval(11);
-  limelight.pipelineSwitch(0);
+import com.acmerobotics.roadrunner.Action;
+import com.acmerobotics.roadrunner.InstantFunction;
+import com.acmerobotics.roadrunner.Pose2d;
+import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.ftc.Actions;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
+import com.qualcomm.robotcore.hardware.DcMotor;
 
-  LL.start()
-}
-}
+import org.firstinspires.ftc.teamcode.MecanumDrive;
+
+@Autonomous(name = "RedFarAuton")
+public class RedFarAuton extends LinearOpMode {
+    DcMotor intake;
+    CRServo transferL;
+    CRServo transferR;
+    DcMotor outake;
+    DcMotor outake2;
+
+    class OT implements InstantFunction {
+        //OS stands for outake speed. It is the variable for the speed we want to set the outake at.
+        //We use it in the class so we can adjust the speed in the actual path, rather than makng a seperate code for every speed we need.
+        double OS;
+
+        public OT(double OS) {
+            this.OS = OS;
+        }
+
+        @Override
+        public void run() {
+            outake.setPower(OS);
+            outake2.setPower(OS);
+        }
+    }
+
+    class GATE implements InstantFunction {
+        //GATE = Transfer
+        double TS;
+
+        public GATE (double TS) {
+            this.TS = TS;
+        }
+
+        @Override
+        public void run() {
+            transferL.setPower(TS);
+            transferR.setPower(-TS);
+        }
+    }
+
+
+    class IT implements InstantFunction {
+        //IT = INTAKE
+        float IS;
+
+        public IT(float IS) {
+            this.IS = IS;
+        }
+
+        @Override
+        public void run() {
+            intake.setPower(-IS);
+        }
+    }
+
+    @Override
+    public void runOpMode() throws InterruptedException {
+        intake = hardwareMap.get(DcMotor.class, "intake");
+        transferL = hardwareMap.get(CRServo.class, "transferL");
+        transferR = hardwareMap.get(CRServo.class, "transferR");
+        outake = hardwareMap.get(DcMotor.class, "outake");
+        outake2 = hardwareMap.get(DcMotor.class, "outake2");
+        //create starting pos
+        Pose2d beginPose = new Pose2d(62, -28, Math.toRadians(180));
+        //Pose2d camPose = new Pose2d(0,10,Math.toRadians(180));
+        //Pose2d prePose = new Pose2d(-34, 30, Math.toRadians(180));
+
+
+        //create rr drive obj
+        MecanumDrive drive = new MecanumDrive(hardwareMap, beginPose);
+
+        waitForStart();
+
+        //create path
+        Action path = drive.actionBuilder(beginPose)
+
+
+                .lineToX(54)
+                .turn(Math.toRadians(-17))
+                //Start Outake:
+                .stopAndAdd(new OT(0.9))
+                .afterTime(3.0, new GATE(1))
+                //Transfer:
+                .waitSeconds(1.5)
+                .stopAndAdd(new IT(1))
+                .stopAndAdd(new GATE(1))
+                .waitSeconds(5)
+                .turn(Math.toRadians(-17))
+                .stopAndAdd(new GATE( 0))
+                .lineToX(33)
+                .turn(Math.toRadians(-90))
+                .afterTime(0.01,new IT(1);
