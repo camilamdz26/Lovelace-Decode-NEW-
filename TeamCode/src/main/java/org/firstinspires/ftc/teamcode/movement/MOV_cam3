@@ -6,6 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.Range;
+import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
+import com.qualcomm.hardware.limelightvision.LLStatus;
+import com.qualcomm.hardware.limelightvision.Limelight3
 
 @TeleOp
         (name="TELEOP")
@@ -16,6 +20,7 @@ public class TELEOP extends LinearOpMode {
     DcMotor FL;
     DcMotor FR;
     double r;
+Limelight3A LL;
 
     public void runOpMode(){
         BR = hardwareMap.get(DcMotor.class, "BR");
@@ -25,9 +30,15 @@ public class TELEOP extends LinearOpMode {
 
         BR.setDirection(DcMotorSimple.Direction.REVERSE);
         FR.setDirection(DcMotorSimple.Direction.REVERSE);
+        LL = hardwareMap.get(Limelight3A.class, "LL");
+
+        telemetry.setMsTransmissionInterval(11);
+
+        LL.pipelineSwitch(0);
 
         waitForStart();
         while (opModeIsActive()){
+        LL.start();
             r = Math.hypot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
             double robotAngle = Math.atan2(gamepad1.left_stick_x, -gamepad1.left_stick_y) - Math.PI / 4;
             double rightX = gamepad1.right_stick_x;
@@ -42,13 +53,27 @@ public class TELEOP extends LinearOpMode {
             FL.setPower(Range.clip(-v1, -1.0D, 1.0D));
             telemetry.update();
 
-        }
-        //everything else in if statements here
-        /*
-        1. intake (on?)
-        (off?)
-        2. outtake
-        (on)
-         */
+LL.result result = LL.getLatestResult();
+
+List<FiducialResult> fiducials = result.getFiducialResults();
+for (FiducialResult fiducial : fiducials) {
+    int id = fiducial.getFiducialId(); // The ID number of the fiducial
+    double x = detection.getTargetXDegrees(); // Where it is (left-right)
+    double y = detection.getTargetYDegrees(); // Where it is (up-down)
+    double StrafeDistance_3D = fiducial.getRobotPoseTargetSpace().getY(); 
+    telemetry.addData("Fiducial " + id, "is " + distance + " meters away");
+        fiducial.getRobotPoseTargetSpace();
+}
+
+if (result != null && result.isValid()) {
+    Pose3D botpose = result.getBotpose();
+    if (botpose != null) {
+        double x = botpose.getPosition().x;
+        double y = botpose.getPosition().y;
+        telemetry.addData("MT1 Location", "(" + x + ", " + y + ")");
+    }
+}
+
+       }
     }
 }
