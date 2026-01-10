@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.ftc.Encoder;
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.hardware.limelightvision.LLResult;
+import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -17,25 +18,25 @@ import com.qualcomm.robotcore.util.Range;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose3D;
 
+import java.util.List;
+
 @TeleOp (name="TELEOPV")
 @Configurable
-public class TELEOPV extends LinearOpMode {
+public class final_teleop extends LinearOpMode {
     DcMotor BR;
     DcMotor BL;
     DcMotor FL;
     DcMotor FR;
-    DcMotor transfer;
     DcMotor intake;
     DcMotorEx outake;
     DcMotorEx outake2;
     CRServo transferR;
     CRServo transferL;
-    Limelight3A limelight;
-
-    public static double TPS = 0;
-    public static double shooterTarget = 0;
-
-    public static double testveloc = 0;
+    Limelight3A LL;
+    final double h = 18.25 ; //inch
+    // height between tag and limelight 0.26 meters
+    final double theta = 35; //degrees//angle of camera ( 35 degrees
+    double d = 26.02; //at ty = 0
 
     double r;
 
@@ -51,21 +52,18 @@ public class TELEOPV extends LinearOpMode {
         outake = hardwareMap.get(DcMotorEx.class, "outake");
         outake2 = hardwareMap.get(DcMotorEx.class, "outake2");
 
-        transfer = hardwareMap.get(DcMotorEx.class, "transfer");
-
-
-        limelight = hardwareMap.get(Limelight3A.class, "LL");
+        LL = hardwareMap.get(Limelight3A.class, "LL");
 
         telemetry.setMsTransmissionInterval(11);
 
-        limelight.pipelineSwitch(0);
+        LL.pipelineSwitch(0);
 
         /*
          * Starts polling for data.  If you neglect to call start(), getLatestResult() will return null.
          */
-        limelight.start();
+        LL.start();
         LLResult result = null;
-        double limelightTa = 0;
+        //double limelightTa = 0;
 
         outake.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         outake2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -80,8 +78,8 @@ public class TELEOPV extends LinearOpMode {
         outake2.setVelocityPIDFCoefficients(200, 0, 0, 14);
 
         intake = hardwareMap.get(DcMotor.class, "intake");
-        //transferR = hardwareMap.get(CRServo.class, "transferR"); //the robots right
-        //transferL = hardwareMap.get(CRServo.class, "transferL");
+        transferR = hardwareMap.get(CRServo.class, "transferR"); //the robots right
+        transferL = hardwareMap.get(CRServo.class, "transferL");
 
         FR.setDirection(DcMotorSimple.Direction.REVERSE);
         FL.setDirection(DcMotorSimple.Direction.REVERSE);
@@ -94,21 +92,23 @@ public class TELEOPV extends LinearOpMode {
 
         while (opModeIsActive()) {
 
-            result = limelight.getLatestResult();
-            if (result.isValid()) {
-                // Access general information
-                Pose3D botpose = result.getBotpose();
-                limelightTa = result.getTa();
-                //telemetry.addData("Botpose", botpose.toString());
-
-
+            result = LL.getLatestResult();
+            List<LLResultTypes.FiducialResult> fiducialResults = result.getFiducialResults();
+            for (LLResultTypes.FiducialResult fr : fiducialResults) {
+                telemetry.addData("Fiducial", "ID: %d, Family: %s, X: %.2f, Y: %.2f", fr.getFiducialId(), fr.getFamily(), fr.getTargetXDegrees(), fr.getTargetYDegrees());
+                double id = fr.getFiducialId();
+                if (id == 20) {
+                    double ty20 = fr.getTargetYDegrees();
+                    double m = Math.tan(Math.toRadians(ty20 + theta));
+                    double d = h / m;
+                } else if (id == 24) {
+                    double ty24 = fr.getTargetYDegrees();
+                    double m = Math.tan(Math.toRadians(ty24 + theta));
+                    double d = h / m;
+                }
             }
-            //shooterTarget = testveloc;
-            if (limelightTa > 0.5) {
-                shooterTarget = 1050;
-            } else if (limelightTa < 0.5) {
-                shooterTarget = 1375;
-            }
+            double velocity = (-0.0238008 * (d*d))+(9.37752 * d)+581.64844;
+
             r = Math.hypot(-gamepad1.left_stick_y, gamepad1.left_stick_x);
             double robotAngle = Math.atan2(gamepad1.left_stick_x, -gamepad1.left_stick_y) - Math.PI / 4;
             double rightX = gamepad1.right_stick_x;
@@ -134,54 +134,41 @@ public class TELEOPV extends LinearOpMode {
                 intake.setPower(1);
             }
 
-            if(gamepad2.left_bumper){ //outake far
-                outake.setVelocity(shooterTarget);
-                outake2.setVelocity(shooterTarget);
-
-//                outake.setVelocity(TPS);
-//                outake2.setVelocity(TPS);
-            }
-
-            if(gamepad2.left_trigger > 0.2){
-                outake.setPower(-1);
-                outake2.setPower(-1);
-
+            if (gamepad2.left_bumper){
+                outake.setVelocity(velocity);
+                outake2.setVelocity(velocity);
             }
             if(gamepad2.right_bumper){ //outake close
                 outake.setPower(.5);
                 outake2.setPower(.5);
+
 //                outake.setVelocity(TPS);
 //                outake2.setVelocity(TPS);
             }
-
             if(gamepad2.x){ //outake off
                 outake.setPower(0);
                 outake2.setPower(0);
             }
             if(gamepad2.y){ //transfer
-                transfer.setPower(1);
-               // transferL.setPower(1);
-                //transferR.setPower(-1);
+                transferL.setPower(1);
+                transferR.setPower(-1);
             }
             if(gamepad2.b){ //transfer off
-                transfer.setPower(0);
-                //transferL.setPower(0);
-               // transferR.setPower(0);
+                transferL.setPower(0);
+                transferR.setPower(0);
             }
             if(gamepad2.a){ //reverse transfer
-                //transferL.setPower(-1);
-                //transferR.setPower(1);
+                transferL.setPower(-1);
+                transferR.setPower(1);
             }
 
             double outakeVelocity = outake.getVelocity();
 
             //telemetry.addData("Outake Pos", outake.getCurrentPosition());
-            telemetry.addData("Outake Target Vel", shooterTarget);
             telemetry.addData("Outake Actual Vel", outakeVelocity);
-            telemetry.addData("ta", limelightTa);
-            telemetry.addData("tx", result.getTx());
-            telemetry.addData("ta", result.getTa());
             telemetry.addData("ty", result.getTy());
+            telemetry.addData("distance",d);
+            telemetry.addData("calculated velocity",velocity);
 
             telemetry.update();
         }
